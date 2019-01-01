@@ -1,6 +1,7 @@
 package await_test
 
 import (
+	"fmt"
 	"github.com/elgohr/golang-await/await"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ func TestReturnsResolvedObject(t *testing.T) {
 	}
 }
 
-func TestReturnsErrorWhenRunningIntoTimeout(t *testing.T) {
+func TestReturnsErrorWhenRunningIntoTimeoutWithoutAnswer(t *testing.T) {
 	awaiting := make(chan interface{}, 1)
 	returns := await.Await(awaiting, 1*time.Nanosecond)
 	if returns.(error).Error() != "Timed out after 1ns" {
@@ -26,24 +27,15 @@ func TestReturnsErrorWhenRunningIntoTimeout(t *testing.T) {
 	}
 }
 
-func TestExample(t *testing.T) {
+func TestReturnsErrorWhenRunningIntoTimeoutWithLaterAnswer(t *testing.T) {
 	awaiting := make(chan interface{}, 1)
-	remoteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		awaiting <- r.Method
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer remoteServer.Close()
-
-	thisCouldBeYourAsyncFunction := func() {
-		go func() {
-			res, _ := http.Get(remoteServer.URL)
-			defer res.Body.Close()
-		}()
-	}
-	thisCouldBeYourAsyncFunction()
-	returns := await.Await(awaiting, 1*time.Second)
-	if returns != "GET" {
-		t.Errorf("Expected GET, but got %v", returns)
+	returns := await.Await(awaiting, 1*time.Nanosecond)
+	go func() {
+		time.Sleep(2 * time.Nanosecond)
+		awaiting <- "test"
+	}()
+	if returns.(error).Error() != "Timed out after 1ns" {
+		t.Errorf("Didn't return the expected error, but %v", returns)
 	}
 }
 
@@ -62,6 +54,6 @@ func ExampleAwait() {
 		}()
 	}
 	thisCouldBeYourAsyncFunction()
-	await.Await(awaiting, 1*time.Second)
+	fmt.Println(await.Await(awaiting, 1*time.Second))
 	// Output: GET
 }
