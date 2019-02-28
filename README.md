@@ -1,7 +1,7 @@
-# golang-await
-Test asynchronous behaviour in Golang
+# go-await
+Testing concurrency in Golang 
 
-`go get -u github.com/elgohr/golang-await`
+`go get -u github.com/elgohr/go-await`
 
 ## Chuck Norris doesn't sleep, he waits
 I saw so many test code, where people are waiting on async execution by sleeping (time.Sleep).  
