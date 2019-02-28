@@ -1,1 +1,1 @@
-module github.com/elgohr/golang-await
+module github.com/elgohr/go-await
