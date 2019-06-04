@@ -15,6 +15,8 @@ You may also use this as a library for not playing copy cat :-)
 
 ## Example
 ```
+import ("github.com/elgohr/go-await/wait")
+
 awaiting := make(chan interface{}, 1)
 
 remoteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +33,7 @@ thisCouldBeYourAsyncFunction := func() {
 }
 thisCouldBeYourAsyncFunction()
 
-returns := await.Await(awaiting, 1*time.Second)
+returns := wait.For(awaiting, 1*time.Second)
 if returns != "GET" {
 	t.Errorf("Expected GET, but got %v", returns)
 }

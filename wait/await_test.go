@@ -1,8 +1,8 @@
-package await_test
+package wait_test
 
 import (
 	"fmt"
-	"github.com/elgohr/golang-await/await"
+	"github.com/elgohr/go-await/wait"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,7 +13,7 @@ func TestReturnsResolvedObject(t *testing.T) {
 	awaiting := make(chan interface{}, 1)
 	expected := "test"
 	awaiting <- expected
-	returns := await.Await(awaiting, 1*time.Nanosecond)
+	returns := wait.For(awaiting, 1*time.Nanosecond)
 	if returns != expected {
 		t.Errorf("Didn't return %v, but %v", expected, returns)
 	}
@@ -21,7 +21,7 @@ func TestReturnsResolvedObject(t *testing.T) {
 
 func TestReturnsErrorWhenRunningIntoTimeoutWithoutAnswer(t *testing.T) {
 	awaiting := make(chan interface{}, 1)
-	returns := await.Await(awaiting, 1*time.Nanosecond)
+	returns := wait.For(awaiting, 1*time.Nanosecond)
 	if returns.(error).Error() != "Timed out after 1ns" {
 		t.Errorf("Didn't return the expected error, but %v", returns)
 	}
@@ -29,7 +29,7 @@ func TestReturnsErrorWhenRunningIntoTimeoutWithoutAnswer(t *testing.T) {
 
 func TestReturnsErrorWhenRunningIntoTimeoutWithLaterAnswer(t *testing.T) {
 	awaiting := make(chan interface{}, 1)
-	returns := await.Await(awaiting, 1*time.Nanosecond)
+	returns := wait.For(awaiting, 1*time.Nanosecond)
 	go func() {
 		time.Sleep(2 * time.Nanosecond)
 		awaiting <- "test"
@@ -54,6 +54,6 @@ func ExampleAwait() {
 		}()
 	}
 	thisCouldBeYourAsyncFunction()
-	fmt.Println(await.Await(awaiting, 1*time.Second))
+	fmt.Println(wait.For(awaiting, 1*time.Second))
 	// Output: GET
 }
